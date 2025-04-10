@@ -102,6 +102,7 @@ class Appointment(models.Model):
     doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="doctor_appointments")
     time = models.DateTimeField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="Pending")
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f'{self.patient.first_name} {self.patient.last_name} on {self.time}'
@@ -119,3 +120,6 @@ class PreVisitReport(models.Model):
     appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE, related_name="pre_visit_report")
     responses = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.appointment.patient.first_name} {self.appointment.patient.last_name} | {self.appointment.time} | {self.appointment.doctor.doctor_profile.department.name}'

@@ -9,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile_id']
+        fields = '__all__'
 
     def get_profile_id(self, obj):
             if obj.role == User.Role.DOCTOR and hasattr(obj, 'doctor_profile'):
@@ -74,12 +74,14 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 class DoctorProfileSerializer(serializers.ModelSerializer):
 
-    first_name = serializers.CharField(source='user.first_name', read_only=True)
-    last_name = serializers.CharField(source='user.last_name', read_only=True)
+    # first_name = serializers.CharField(source='user.first_name', read_only=True)
+    # last_name = serializers.CharField(source='user.last_name', read_only=True)
     department = serializers.CharField(source='department.name', read_only=True)
-    phone = serializers.CharField(source='user.phone', read_only=True)
-    dob = serializers.DateField(source='user.dob', read_only=True)
-    email = serializers.EmailField(source='user.email', read_only=True)
+    dept = serializers.IntegerField(source='department.id', read_only=True)
+    # phone = serializers.CharField(source='user.phone', read_only=True)
+    # dob = serializers.DateField(source='user.dob', read_only=True)
+    # email = serializers.EmailField(source='user.email', read_only=True)
+    user = UserSerializer()
 
     class Meta:
         model = DoctorProfile
@@ -103,19 +105,26 @@ class LabReportSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class AppointmentSerializer(serializers.ModelSerializer):
-    patient_name = serializers.SerializerMethodField()
-    doctor_name = serializers.SerializerMethodField()
-    department = serializers.SerializerMethodField()
+    patient_name = serializers.SerializerMethodField(read_only=True)
+    doctor_name = serializers.SerializerMethodField(read_only=True)
+    doctor_id = serializers.SerializerMethodField(read_only=True)
+    department = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = Appointment
-        fields = ['id', 'patient_name', 'doctor_name', 'department', 'time', 'status']
+        fields = [
+            'id', 'patient', 'doctor', 'time', 'description', 'status',
+            'patient_name', 'doctor_name', 'doctor_id', 'department'
+        ]
 
     def get_patient_name(self, obj):
         return f"{obj.patient.first_name} {obj.patient.last_name}"
 
     def get_doctor_name(self, obj):
         return f"{obj.doctor.first_name} {obj.doctor.last_name}"
+
+    def get_doctor_id(self, obj):
+        return f"{obj.doctor.doctor_profile.id}"
 
     def get_department(self, obj):
         return f"{obj.doctor.doctor_profile.department.name}"

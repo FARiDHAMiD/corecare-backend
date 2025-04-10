@@ -79,7 +79,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if user.role == User.Role.ADMIN:
             return User.objects.all()
         elif user.role == User.Role.DOCTOR:
-            return User.objects.filter(role=User.Role.PATIENT)
+            return User.objects.filter(role=User.Role.DOCTOR)
         return User.objects.filter(id=user.id)  # Patients see only themselves
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -179,3 +179,13 @@ class PreVisitQuestionViewSet(viewsets.ModelViewSet):
 class PreVisitReportViewSet(viewsets.ModelViewSet):
     queryset = PreVisitReport.objects.all()
     serializer_class = PreVisitReportSerializer
+
+    lookup_field = 'appointment'  # this makes DRF use `appointment_id` as lookup
+
+    def retrieve(self, request, appointment=None):
+        try:
+            report = PreVisitReport.objects.get(appointment__id=appointment)
+            serializer = self.get_serializer(report)
+            return Response(serializer.data)
+        except PreVisitReport.DoesNotExist:
+            return Response({"detail": "No report found for this appointment."}, status=404)
