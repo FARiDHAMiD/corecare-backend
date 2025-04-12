@@ -109,10 +109,6 @@ class ReportTypeViewSet(viewsets.ModelViewSet):
     queryset = ReportType.objects.all()
     serializer_class = ReportTypeSerializer
 
-class LabReportViewSet(viewsets.ModelViewSet):
-    queryset = LabReport.objects.all()
-    serializer_class = LabReportSerializer
-    
 class AppointmentViewSet(viewsets.ModelViewSet):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
@@ -171,6 +167,28 @@ class LabReportViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=200)
         except ReportType.DoesNotExist:
             return Response({"error": "Report type not found"}, status=404)
+
+            
+    @api_view(['POST'])
+    def upload_lab_report(request, patient_id):
+        if request.method == 'POST':
+            serializer = LabReportSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(patient_id=patient_id)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @api_view(['GET'])
+    def get_patient_lab_reports(request, patient_id):
+        """
+        Fetch all lab reports for a specific patient.
+        """
+        try:
+            reports = LabReport.objects.filter(patient_id=patient_id)  # Filter by patient_id
+            serializer = LabReportSerializer(reports, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except LabReport.DoesNotExist:
+            return Response({'detail': 'No lab reports found for this patient.'}, status=status.HTTP_404_NOT_FOUND)
 
 class PreVisitQuestionViewSet(viewsets.ModelViewSet):
     queryset = PreVisitQuestion.objects.all()

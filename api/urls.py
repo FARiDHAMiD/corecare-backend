@@ -36,6 +36,8 @@ urlpatterns = [
 
     # LabReports Custom Requests
     path('lab-reports/type/<int:report_type_id>/', LabReportViewSet.lab_reports_by_type, name='lab-reports-by-type'),
+    path('patients/<int:patient_id>/lab-reports/', LabReportViewSet.upload_lab_report, name='upload_lab_report'),
+    path('labreports/patient/<int:patient_id>/', LabReportViewSet.get_patient_lab_reports, name='get_patient_lab_reports'),
 
 
     # Appointements Custom Requests
