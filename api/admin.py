@@ -70,6 +70,7 @@ admin.site.register(User, CustomUserAdmin)
 
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
+    
     list_display = ['patient', 'doctor', 'time', 'status']
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -79,11 +80,30 @@ class AppointmentAdmin(admin.ModelAdmin):
             kwargs["queryset"] = User.objects.filter(role=User.Role.DOCTOR)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
+# Inline model for LabReport
+class LabReportInline(admin.TabularInline):  # You can use StackedInline for a different layout
+    model = LabReport
+    extra = 0  # Number of empty forms to display
+    fields = ['report', 'report_type', 'uploaded_at']  # Customize the fields you want to display
+    readonly_fields = ['uploaded_at']  # Make the uploaded_at field read-only
+
+# Register the PatientProfile model with the LabReport inline
+@admin.register(PatientProfile)
+class PatientProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'height', 'weight', 'bmi', 'created_at']
+    inlines = [LabReportInline]  # Add the LabReportInline here
+
+# Register LabReport model in admin
+@admin.register(LabReport)
+class LabReportAdmin(admin.ModelAdmin):
+    list_display = ['patient', 'report', 'report_type', 'uploaded_at']
+    search_fields = ['patient__first_name', 'patient__last_name']
+
 admin.site.register(Department)
 admin.site.register(DoctorProfile)
-admin.site.register(PatientProfile)
+# admin.site.register(PatientProfile)
 admin.site.register(PreVisitQuestion)
 admin.site.register(PreVisitReport)
-admin.site.register(LabReport)
+# admin.site.register(LabReport)
 admin.site.register(ReportType)
 

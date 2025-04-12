@@ -78,15 +78,13 @@ class ReportType(models.Model):
 
 # Lab Reports
 class LabReport(models.Model):
-    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="lab_reports")
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name="lab_reports")
     report = models.FileField(upload_to="lab_reports/")
     report_type = models.ForeignKey(ReportType, on_delete=models.SET_NULL, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
-
     
     def __str__(self):
-        return f'{self.patient.first_name} {self.patient.last_name} - {self.report_type.name}'
-
+        return f'{self.patient.user.first_name} {self.patient.user.last_name} - {self.report_type.name}'    
 
 # Appointment Model
 class Appointment(models.Model):

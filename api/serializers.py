@@ -86,9 +86,15 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = DoctorProfile
         fields = '__all__'
+        
+class LabReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LabReport
+        fields = '__all__'
 
 class PatientProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+    lab_reports = LabReportSerializer(many=True, read_only=True)  # Include lab reports
 
     class Meta:
         model = PatientProfile
@@ -99,10 +105,6 @@ class ReportTypeSerializer(serializers.ModelSerializer):
         model = ReportType
         fields = '__all__'
 
-class LabReportSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = LabReport
-        fields = '__all__'
 
 class AppointmentSerializer(serializers.ModelSerializer):
     patient_name = serializers.SerializerMethodField(read_only=True)
